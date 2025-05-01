@@ -1,0 +1,25 @@
+{
+  "name": "memorymate",
+  "version": "1.0.0",
+  "description": "My firt app",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UnicornUniversity/realizace-backendu-matthew8598.git"
+  },
+  "author": "Matúš Várfalvy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UnicornUniversity/realizace-backendu-matthew8598/issues"
+  },
+  "homepage": "https://github.com/UnicornUniversity/realizace-backendu-matthew8598#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.14.1"
+  }
+}
