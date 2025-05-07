@@ -20,4 +20,29 @@ router.get('/', async (req, res) => {
   res.json(lists);
 });
 
+// Get lists and entries formatted for the dashboard
+router.get('/dashboard', (req, res) => {
+  try {
+    const lists = ListAbl.getAllLists();
+    const dashboardData = lists.map(list => ({
+      type: list.type,
+      date: list.date,
+      entries: list.entries.map(entryId => {
+        const entry = EntryDao.getEntryById(entryId);
+        return {
+          id: entry.id,
+          title: entry.title,
+          content: entry.content,
+          reminder: entry.reminder,
+          dueDate: entry.dueDate,
+          type: entry.type
+        };
+      })
+    }));
+    res.json(dashboardData);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
 module.exports = router;

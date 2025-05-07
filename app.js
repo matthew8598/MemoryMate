@@ -6,6 +6,7 @@ const cors = require('cors');
 const entriesRouter = require('./routes/entries');
 const listsRouter = require('./routes/todolists');
 const remindersRouter = require('./routes/reminders');
+const ReminderAbl = require('../abl/reminderAbl');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,9 @@ app.use(bodyParser.json());
 app.use('/entries', entriesRouter);
 app.use('/lists', listsRouter);
 app.use('/reminders', remindersRouter);
+
+// Schedule reminders from entries.json on server startup
+ReminderAbl.scheduleRemindersFromEntries();
 
 // Error handling middleware
 app.use((err, req, res, next) => {

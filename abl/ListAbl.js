@@ -1,7 +1,9 @@
 const Ajv = require('ajv');
 const ListDao = require('../dao/ListDao');
+const addFormats = require('ajv-formats'); // Import ajv-formats
 
 const ajv = new Ajv();
+addFormats(ajv); // Add formats like "date-time"
 
 const listSchema = {
   type: 'object',
@@ -44,10 +46,16 @@ class ListAbl {
       list = { type: listType, date: listDate, entries: [] };
       ListDao.addList(list);
     }
-
+    if(!validate(list)) {
+      throw new Error('Invalid list data');
+    }
     // Add the entry to the list
     list.entries.push(entry);
     ListDao.saveLists(list);
+  }
+
+  static sortEntryIntoListById(listType, listDate, entryId) {
+    ListDao.addEntryToList(listType, listDate, entryId);
   }
 }
 

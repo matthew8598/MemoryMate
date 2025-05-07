@@ -1,35 +1,18 @@
 const Ajv = require('ajv');
-const ReminderDao = require('../dao/ListDao');
 const schedule = require('node-schedule');
+const addFormats = require('ajv-formats'); // Import ajv-formats
+const fs = require('fs');
+const path = require('path');
+const EntryDao = require('../dao/entryDao'); // Corrected import path
 
 const ajv = new Ajv();
+addFormats(ajv); // Add formats like "date-time"
 
-// Removed userId field from schema
-const reminderSchema = {
-  type: 'object',
-  properties: {
-    message: { type: 'string' },
-    date: { type: 'string', format: 'date-time' },
-  },
-  required: ['message', 'date'],
-  additionalProperties: false,
-};
+const entriesFilePath = path.join(__dirname, '../storage/entries.json');
 
-const validate = ajv.compile(reminderSchema);
+// Removed reminderSchema and related validation logic
 
 class ReminderAbl {
-  static createReminder(reminderData) {
-    if (!validate(reminderData)) {
-      throw new Error('Invalid reminder data');
-    }
-    ReminderDao.addReminder(reminderData);
-
-    // Schedule the reminder
-    if (reminderData.date) {
-      this.scheduleReminder(reminderData);
-    }
-  }
-
   static scheduleReminder(reminderData) {
     const job = schedule.scheduleJob(new Date(reminderData.date), () => {
       this.sendReminderNotification(reminderData);
@@ -62,6 +45,15 @@ class ReminderAbl {
   static sendDueDateNotification(taskData) {
     console.log(`Due Date Notification: Task '${taskData.title}' is due.`);
     // Placeholder for integrating a notification service for due dates
+    console.log("Options: [Mark as Complete]");
+  }
+
+  static scheduleReminderNotification(reminderData) {
+    const job = schedule.scheduleJob(new Date(reminderData.date), () => {
+      this.sendReminderNotification(reminderData);
+    });
+
+    return job;
   }
 
   static parseInterval(interval) {
@@ -80,18 +72,54 @@ class ReminderAbl {
   }
 
   static markTaskAsComplete(taskId) {
-    // Logic to mark a task as complete and stop reminders
-    ReminderDao.removeReminder(taskId);
-    console.log(`Task ${taskId} marked as complete.`);
+    try {
+      EntryDao.updateEntryById(taskId, { completed: true });
+      console.log(`Task ${taskId} marked as complete.`);
+    } catch (error) {
+      console.error(`Error marking task as complete: ${error.message}`);
+    }
   }
 
   static postponeTask(taskId, newDate) {
-    const reminder = ReminderDao.getReminder(taskId);
-    if (reminder) {
-      reminder.date = newDate;
-      this.scheduleReminder(reminder);
+    try {
+      EntryDao.updateEntryById(taskId, { dueDate: newDate });
       console.log(`Task ${taskId} postponed to ${newDate}.`);
+    } catch (error) {
+      console.error(`Error postponing task: ${error.message}`);
     }
+  }
+
+  static scheduleRemindersFromEntries() {
+    const entries = EntryDao.getAllEntries();
+
+    entries.forEach((entry) => {
+      if (entry.type === 'task' && entry.dueDate) {
+        const dueDate = new Date(entry.dueDate);
+        if (dueDate > new Date()) {
+          schedule.scheduleJob(dueDate, () => {
+            this.sendDueDateNotification(entry);
+          });
+        }
+      }
+
+      if (entry.reminder) {
+        const reminderDate = new Date(entry.reminder);
+        if (reminderDate > new Date()) {
+          schedule.scheduleJob(reminderDate, () => {
+            this.sendReminderNotification(entry);
+          });
+        }
+      }
+    });
+  }
+
+  static sendDueDateNotification(entry) {
+    console.log(`Due Date Notification: Task '${entry.title}' is due.`);
+    console.log("Options: [Mark as Complete]");
+  }
+
+  static sendReminderNotification(entry) {
+    console.log(`Reminder Notification: ${entry.content}`);
   }
 }
 

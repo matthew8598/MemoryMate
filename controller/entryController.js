@@ -1,6 +1,7 @@
 const express = require('express');
 const EntryAbl = require('../abl/ListAbl');
 const Entry = require('../models/Entry');
+const EntryDao = require('../dao/entryDao'); // Corrected import path
 
 const router = express.Router();
 

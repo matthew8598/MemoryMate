@@ -1,1 +1,84 @@
-[]
+[
+  {
+    "title": "Test Entry",
+    "content": "This is a test entry.",
+    "type": "journal",
+    "reminder": "2025-05-07T16:01:36.204Z",
+    "createdAt": "2025-05-07T16:01:35.206Z",
+    "id": 1
+  },
+  {
+    "content": "This is a past entry.",
+    "type": "task",
+    "dueDate": "2025-05-07T16:01:35.718Z",
+    "reminder": "2025-05-07T16:01:35.718Z",
+    "createdAt": "2025-05-07T16:01:36.719Z",
+    "title": "2025-05-07T16:01:35.718Z",
+    "id": 2
+  },
+  {
+    "title": "Test Entry",
+    "content": "This is a test entry.",
+    "type": "journal",
+    "reminder": "2025-05-07T16:02:50.739Z",
+    "createdAt": "2025-05-07T16:02:49.741Z",
+    "id": 3
+  },
+  {
+    "content": "This is a past entry.",
+    "type": "task",
+    "dueDate": "2025-05-07T16:02:50.262Z",
+    "reminder": "2025-05-07T16:02:50.262Z",
+    "createdAt": "2025-05-07T16:02:51.262Z",
+    "title": "2025-05-07T16:02:50.262Z",
+    "id": 4
+  },
+  {
+    "content": "This is a test task.",
+    "reminder": "2025-05-07T12:00:00Z",
+    "dueDate": "2025-05-07T12:00:00Z",
+    "type": "task",
+    "createdAt": "2025-05-07T16:13:14.363Z",
+    "title": "2025-05-07T12:00:00Z",
+    "id": 5
+  },
+  {
+    "content": "This is a journal entry.",
+    "type": "journal",
+    "title": "My Journal Entry",
+    "createdAt": "2025-05-07T16:13:14.378Z",
+    "id": 6
+  },
+  {
+    "content": "This is a test task.",
+    "reminder": "2025-05-07T12:00:00Z",
+    "dueDate": "2025-05-07T12:00:00Z",
+    "type": "task",
+    "createdAt": "2025-05-07T16:15:23.428Z",
+    "title": "2025-05-07T12:00:00Z",
+    "id": 7
+  },
+  {
+    "content": "This is a journal entry.",
+    "type": "journal",
+    "createdAt": "2025-05-07T16:15:23.434Z",
+    "title": "2025-05-07T16:15:23.434Z",
+    "id": 8
+  },
+  {
+    "content": "This is a test task.",
+    "reminder": "2025-05-07T12:00:00Z",
+    "dueDate": "2025-05-07T12:00:00Z",
+    "type": "task",
+    "createdAt": "2025-05-07T16:50:02.308Z",
+    "title": "2025-05-07T12:00:00Z",
+    "id": 9
+  },
+  {
+    "content": "This is a journal entry.",
+    "type": "journal",
+    "createdAt": "2025-05-07T16:50:02.326Z",
+    "title": "2025-05-07T16:50:02.326Z",
+    "id": 10
+  }
+]
