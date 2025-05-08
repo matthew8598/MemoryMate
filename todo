@@ -1,0 +1,10 @@
+Remove old packages -- DONE
+Make sure list date for journals goes up to the day - DONE
+
+-Fixed issue with sorting into lists and changed the date format for lists
+
+1. Add more tests.
+2. Add more error handling.
+3. Implement the notification service.
+4. Test backend with the frontend.
+5. Perform cleanup and optimization.

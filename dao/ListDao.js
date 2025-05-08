@@ -25,17 +25,21 @@ class ListDao {
     lists.push(list);
     this.saveLists(lists);
   }
-
+    
   static getListByTypeAndDate(type, date) {
     const lists = this.getAllLists();
-    return lists.find(list => list.type === type && list.date === date);
+    const normalizedDate = date instanceof Date ? date.toISOString().split('T')[0] : new Date(date).toISOString().split('T')[0]; // Normalize date to YYYY-MM-DD format
+    return lists.find(list => list.type === type && list.date === normalizedDate);
   }
 
   static addEntryToList(listType, listDate, entryId) {
     const lists = this.getAllLists();
-    let list = lists.find(list => list.type === listType && list.date === listDate);
+    console.log(listDate);
+    const listDateString = listDate instanceof Date ? listDate.toISOString().split('T')[0] : listDate; // Normalize date to YYYY-MM-DD format
+    console.log(listDateString);
+    let list = lists.find(list => list.type === listType && list.date === listDateString);
     if (!list) {
-      list = { type: listType, date: listDate, entries: [] };
+      list = { type: listType, date: listDateString, entries: [] };
       lists.push(list);
     }
     list.entries.push(entryId); // Store only the entry ID

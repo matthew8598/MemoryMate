@@ -8,20 +8,15 @@ addFormats(ajv); // Add formats like "date-time"
 const listSchema = {
   type: 'object',
   properties: {
-    date: { type: 'string' },
-    items: {
+    type: { type: 'string', enum: ['journal', 'task'] },
+    date: { 
+      type: 'string', },
+    entries: {
       type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          text: { type: 'string' },
-          completed: { type: 'boolean' },
-        },
-        required: ['text', 'completed'],
-      },
+      items: { type: 'integer' }, // Ensure entries only contain IDs
     },
   },
-  required: ['date', 'items'],
+  required: ['type', 'date', 'entries'],
   additionalProperties: false,
 };
 
@@ -37,26 +32,45 @@ class ListAbl {
 
   static sortEntryIntoList(entry) {
     const listType = entry.type;
-    const listDate = entry.type === 'journal' ? (entry.title || entry.createdAt) : entry.dueDate;
-
-    // Check if the list exists
-    let list = ListDao.getListByTypeAndDate(listType, listDate);
-    if (!list) {
-      // Create a new list if it does not exist
-      list = { type: listType, date: listDate, entries: [] };
-      ListDao.addList(list);
+    const isJournal = listType === 'journal';
+  
+    
+    let listDate = isJournal
+      ? (entry.title || entry.createdAt)
+      : entry.dueDate;
+  
+    console.log("list date1", listDate);
+    console.log("entry title", entry.title);
+  
+  
+    if (isValidDateString(entry.title)) {
+      const dateObj = new Date(listDate);
+      dateObj.setUTCHours(0, 0, 0, 0);
+      listDate = dateObj.toISOString().split('T')[0];
+      console.log("list date2", listDate);
     }
-    if(!validate(list)) {
+  
+    let lists = ListDao.getAllLists();
+    let list = lists.find(l => l.type === listType && l.date === listDate);
+    if (!list) {
+      console.log("list date3", listDate);
+      list = { type: listType, date: listDate, entries: [] };
+      lists.push(list);
+    }
+  
+    if (!validate(list)) {
+      console.error('Validation errors:', validate.errors);
       throw new Error('Invalid list data');
     }
-    // Add the entry to the list
-    list.entries.push(entry);
-    ListDao.saveLists(list);
+  
+    list.entries.push(entry.id);
+    ListDao.saveLists(lists);
   }
-
-  static sortEntryIntoListById(listType, listDate, entryId) {
-    ListDao.addEntryToList(listType, listDate, entryId);
+  
+}  
+  function isValidDateString(str) {
+    const d = new Date(str);
+    return !isNaN(d.getTime()) && /^\d{4}-\d{2}-\d{2}/.test(str);
   }
-}
 
 module.exports = ListAbl;

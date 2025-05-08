@@ -16,8 +16,6 @@ class EntryDao {
 
   static addEntry(entry) {
     const entries = this.getAllEntries();
-    console.log('Adding entry:', entry);
-    console.log('Current entries before adding:', entries);
     entry.id = entries.length ? entries[entries.length - 1].id + 1 : 1; // Assign a unique ID
     entries.push(entry);
     this.saveEntries(entries);
