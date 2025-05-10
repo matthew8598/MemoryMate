@@ -1,0 +1,4 @@
+# Omit assignment and key files
+assignment
+localhost-key.pem
+localhost.pem

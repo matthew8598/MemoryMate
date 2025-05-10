@@ -133,3 +133,38 @@ describe('EntryAbl.createEntry', () => {
         assert.strictEqual(list.type, 'journal');
     });
 });
+
+describe('EntryAbl.createEntry - Edge Cases', () => {
+    it('should throw an error for an entry with missing required fields', () => {
+        const invalidEntry = {
+            content: 'Missing type field.',
+        };
+
+        assert.throws(() => {
+            EntryAbl.createEntry(invalidEntry);
+        }, /Invalid entry data/);
+    });
+
+    it('should throw an error for an entry with invalid reminder format', () => {
+        const invalidReminderEntry = {
+            content: 'Invalid reminder format.',
+            type: 'task',
+            reminder: 'invalid-format',
+        };
+
+        assert.throws(() => {
+            EntryAbl.createEntry(invalidReminderEntry);
+        }, /Invalid entry data/);
+    });
+
+    it('should handle an entry with a very long content field', () => {
+        const longContentEntry = {
+            content: 'a'.repeat(10000), // 10,000 characters
+            type: 'journal',
+        };
+
+        assert.doesNotThrow(() => {
+            EntryAbl.createEntry(longContentEntry);
+        });
+    });
+});

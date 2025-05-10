@@ -3,6 +3,15 @@ const fs = require('fs');
 const path = require('path');
 const ReminderAbl = require('../abl/reminderAbl');
 const EntryAbl = require('../abl/entryAbl');
+const schedule = require('node-schedule');
+
+// Mock node-schedule to avoid actual scheduling during tests
+jest.mock('node-schedule', () => ({
+  scheduleJob: jest.fn((date, callback) => {
+    setTimeout(callback, 0); // Immediately invoke the callback for testing
+    return { cancel: jest.fn() };
+  }),
+}));
 
 const listsFilePath = path.join(__dirname, '../storage/lists.json');
 
@@ -52,5 +61,49 @@ describe('ReminderAbl', () => {
 
         // Verify no reminders are scheduled for past dates
         console.log('No reminders scheduled for past dates');
+    });
+});
+
+describe('ReminderAbl - Edge Cases', () => {
+    it('should not schedule a reminder for an entry with no reminder field but valid dueDate', () => {
+        const noReminderEntry = {
+            content: 'No reminder field.',
+            type: 'task',
+            dueDate: new Date(Date.now() + 1000).toISOString(), // 1 second in the future
+        };
+
+        EntryAbl.createEntry(noReminderEntry);
+
+        assert.doesNotThrow(() => {
+            ReminderAbl.scheduleRemindersFromEntries();
+        });
+
+        console.log('No reminders scheduled for entries without a reminder field');
+    });
+
+    it('should handle scheduling reminders for multiple entries with overlapping times', (done) => {
+        const overlappingEntries = [
+            {
+                content: 'Entry 1',
+                type: 'task',
+                dueDate: new Date(Date.now() + 1000).toISOString(),
+                reminder: new Date(Date.now() + 1000).toISOString(),
+            },
+            {
+                content: 'Entry 2',
+                type: 'task',
+                dueDate: new Date(Date.now() + 1000).toISOString(),
+                reminder: new Date(Date.now() + 1000).toISOString(),
+            },
+        ];
+
+        overlappingEntries.forEach(entry => EntryAbl.createEntry(entry));
+
+        ReminderAbl.scheduleRemindersFromEntries();
+
+        setTimeout(() => {
+            console.log('Reminders triggered successfully for overlapping entries');
+            done();
+        }, 1500);
     });
 });

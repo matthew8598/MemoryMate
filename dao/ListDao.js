@@ -45,6 +45,19 @@ class ListDao {
     list.entries.push(entryId); // Store only the entry ID
     this.saveLists(lists); // Save the updated lists
   }
+
+  static deleteListsByTypeAndDate(type, date) {
+    const lists = this.getAllLists();
+    const normalizedDate = date instanceof Date ? date.toISOString().split('T')[0] : new Date(date).toISOString().split('T')[0]; // Normalize date to YYYY-MM-DD format
+    const filteredLists = lists.filter(list => !(list.type === type && list.date === normalizedDate));
+
+    if (filteredLists.length === lists.length) {
+      throw new Error(`No lists found with type '${type}' and date '${normalizedDate}'`);
+    }
+
+    this.saveLists(filteredLists);
+    return true; // Indicate successful deletion
+  }
 }
 
 module.exports = ListDao;

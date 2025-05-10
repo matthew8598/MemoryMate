@@ -1,7 +1,7 @@
 const express = require('express');
-const EntryAbl = require('../abl/ListAbl');
-const Entry = require('../models/Entry');
+const EntryAbl = require('../abl/entryAbl');
 const EntryDao = require('../dao/entryDao'); // Corrected import path
+const { formatError } = require('../utils/errorHandler');
 
 const router = express.Router();
 
@@ -11,24 +11,24 @@ router.post('/', (req, res) => {
     EntryAbl.createEntry(req.body);
     res.status(201).send({ message: 'Entry created successfully' });
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(400).send(formatError(error.message, 400));
   }
 });
 
 // Get all entries
 router.get('/', async (req, res) => {
-  const entries = await Entry.find().sort({ createdAt: -1 });
+  const entries = await EntryDao.getAllEntries();
   res.json(entries);
 });
 
-// Get entries by type and date
-router.get('/by-type-and-date', (req, res) => {
+// Updated endpoint to retrieve entries by type and date
+router.get('/entries', async (req, res) => {
   const { type, date } = req.query;
   try {
-    const entries = EntryDao.getEntriesByTypeAndDate(type, date);
+    const entries = await EntryDao.getEntriesByTypeAndDate(type, date);
     res.json(entries);
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(400).send(formatError(error.message, 400));
   }
 });
 

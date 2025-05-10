@@ -58,13 +58,19 @@ class ListAbl {
       lists.push(list);
     }
   
+    // Log validation errors for debugging
     if (!validate(list)) {
+      console.error('Validation failed for list:', list);
       console.error('Validation errors:', validate.errors);
       throw new Error('Invalid list data');
     }
   
     list.entries.push(entry.id);
     ListDao.saveLists(lists);
+  }
+
+  static getAllLists() {
+    return ListDao.getAllLists();
   }
   
 }  

@@ -1,6 +1,6 @@
 const express = require('express');
 const ListAbl = require('../abl/ListAbl');
-const List = require('../models/List');
+const { formatError } = require('../utils/errorHandler');
 
 const router = express.Router();
 
@@ -10,38 +10,39 @@ router.post('/', (req, res) => {
     ListAbl.createList(req.body);
     res.status(201).send({ message: 'List created successfully' });
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(400).send(formatError(error.message, 400));
   }
 });
 
-// Get all lists
+// endpoint to retrieve all lists
 router.get('/', async (req, res) => {
-  const lists = await List.find().populate('tasks').sort({ date: 1 });
-  res.json(lists);
+  try {
+    const lists = await ListAbl.getAllLists();
+    res.json(lists);
+  } catch (error) {
+    res.status(400).send(formatError(error.message, 400));
+  }
 });
 
-// Get lists and entries formatted for the dashboard
-router.get('/dashboard', (req, res) => {
+//endpoint to retrieve lists formatted for the dashboard
+router.get('/dashboard', async (req, res) => {
   try {
-    const lists = ListAbl.getAllLists();
+    const lists = await ListAbl.getAllLists();
     const dashboardData = lists.map(list => ({
       type: list.type,
       date: list.date,
-      entries: list.entries.map(entryId => {
-        const entry = EntryDao.getEntryById(entryId);
-        return {
-          id: entry.id,
-          title: entry.title,
-          content: entry.content,
-          reminder: entry.reminder,
-          dueDate: entry.dueDate,
-          type: entry.type
-        };
-      })
+      entries: list.entries.map(entry => ({
+        id: entry._id,
+        title: entry.title,
+        content: entry.content,
+        reminder: entry.reminder,
+        dueDate: entry.dueDate,
+        type: entry.type
+      }))
     }));
     res.json(dashboardData);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(400).send(formatError(error.message, 400));
   }
 });
 

@@ -42,6 +42,17 @@ class EntryDao {
     this.saveEntries(entries);
     return entries[entryIndex];
   }
+
+  static deleteEntryById(id) {
+    const entries = this.getAllEntries();
+    const entryIndex = entries.findIndex(entry => entry.id === id);
+    if (entryIndex === -1) {
+      throw new Error(`Entry with ID ${id} not found`);
+    }
+    entries.splice(entryIndex, 1);
+    this.saveEntries(entries);
+    return true; // Indicate successful deletion
+  }
 }
 
 module.exports = EntryDao;

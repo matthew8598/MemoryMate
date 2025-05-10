@@ -35,6 +35,9 @@ class ReminderAbl {
   }
 
   static scheduleDueDateNotification(taskData) {
+    if (isNaN(new Date(taskData.dueDate).getTime())) {
+      throw new Error('Invalid dueDate provided');
+    }
     const job = schedule.scheduleJob(new Date(taskData.dueDate), () => {
       this.sendDueDateNotification(taskData);
     });
@@ -93,23 +96,28 @@ class ReminderAbl {
     const entries = EntryDao.getAllEntries();
 
     entries.forEach((entry) => {
-      if (entry.type === 'task' && entry.dueDate) {
-        const dueDate = new Date(entry.dueDate);
-        if (dueDate > new Date()) {
-          schedule.scheduleJob(dueDate, () => {
-            this.sendDueDateNotification(entry);
-          });
-        }
-      }
+        if (entry.type === 'task') {
+            if (!entry.dueDate) {
+                console.warn(`Skipping task entry without dueDate: ${JSON.stringify(entry)}`);
+                return;
+            }
 
-      if (entry.reminder) {
-        const reminderDate = new Date(entry.reminder);
-        if (reminderDate > new Date()) {
-          schedule.scheduleJob(reminderDate, () => {
-            this.sendReminderNotification(entry);
-          });
+            const dueDate = new Date(entry.dueDate);
+            if (dueDate > new Date()) {
+                schedule.scheduleJob(dueDate, () => {
+                    this.sendDueDateNotification(entry);
+                });
+            }
         }
-      }
+
+        if (entry.reminder) {
+            const reminderDate = new Date(entry.reminder);
+            if (reminderDate > new Date()) {
+                schedule.scheduleJob(reminderDate, () => {
+                    this.sendReminderNotification(entry);
+                });
+            }
+        }
     });
   }
 
