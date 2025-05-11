@@ -46,7 +46,31 @@ class ReminderController {
   }
 }
 
-// Updated endpoint to handle due date notifications
+// Define routes
+router.put('/update', ReminderController.updateReminder);
+router.delete('/delete/:id', ReminderController.deleteReminder);
+router.post('/postpone/:id', ReminderController.postponeTask);
+router.put('/complete/:id', ReminderController.markTaskAsComplete);
+
+router.post('/notification', async (req, res) => {
+  try {
+    ReminderAbl.scheduleDueDateNotification();
+    res.status(200).send({ message: 'Due date notification scheduled successfully' });
+  } catch (error) {
+    res.status(500).send(formatError(error.message, 500));
+  }
+});
+
+router.post("/reminderschedule", async (req, res) => {
+  try {
+    ReminderAbl.scheduleReminder();
+    res.status(200).send({ message: 'Reminders scheduled successfully' });
+  } catch (error) {
+    res.status(500).send(formatError(error.message, 500));
+  }
+});
+
+//Endpoint to handle due date notifications
 router.post('/notification/dueDate', async (req, res) => {
   const { entryId } = req.body;
   try {

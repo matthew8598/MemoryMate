@@ -127,7 +127,7 @@ class ReminderAbl {
   }
 
   static sendReminderNotification(entry) {
-    console.log(`Reminder Notification: ${entry.content}`);
+    console.log(`Reminder Notification: ${entry.content}`)
   }
 }
 

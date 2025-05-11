@@ -71,5 +71,20 @@
       15,
       16
     ]
+  },
+  {
+    "type": "task",
+    "date": "2025-05-02",
+    "entries": [
+      39,
+      40
+    ]
+  },
+  {
+    "type": "journal",
+    "date": "Evening Thoughts",
+    "entries": [
+      41
+    ]
   }
 ]

@@ -19,7 +19,7 @@ const entrySchema = {
         reminder: {
             oneOf: [
                 { type: 'string', format: 'date-time' },
-                { type: 'string', pattern: '^\d+ (seconds|minutes|hours|days|weeks|months|years)$' }
+                { type: 'string', pattern: '^\\d+ (second|seconds|minute|minutes|hour|hours|day|days|week|weeks|month|months|year|years)( at \\d{2}:\\d{2})?$' }
             ]
         },
         dueDate: { type: 'string', format: 'date-time' },
