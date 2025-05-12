@@ -1,4 +1,4 @@
-// memorymate/app.js
+// memorymate/server/app.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -22,29 +22,13 @@ app.use('/entries', entryController);
 app.use('/lists', listController);
 app.use('/reminders', reminderController);
 
+// Serve the dashboard page
+app.get('/dashboard', (req, res) => {
+  res.sendFile(__dirname + '/../client/public/dashboard.html');
+});
+
 // Schedule reminders from entries.json on server startup
 ReminderAbl.scheduleRemindersFromEntries();
-
-// Endpoint to add a subscription
-// app.post('/subscribe', (req, res) => {
-//   const subscription = req.body;
-//   try {
-//     require('./utils/notificationService').addSubscription(subscription);
-//     res.status(201).json({ message: 'Subscription added successfully!' });
-//   } catch (error) {
-//     res.status(400).json({ error: error.message });
-//   }
-// });
-
-// Endpoint to trigger a notification
-// app.post('/notify', (req, res) => {
-//   try {
-//     require('./utils/notificationService').sendNotifications();
-//     res.status(200).json({ message: 'Notifications sent!' });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -54,8 +38,8 @@ app.use((err, req, res, next) => {
 
 // Load SSL certificates
 const options = {
-  key: fs.readFileSync('./localhost-key.pem'),
-  cert: fs.readFileSync('./localhost.pem'),
+  key: fs.readFileSync(__dirname + '/localhost-key.pem'),
+  cert: fs.readFileSync(__dirname + '/localhost.pem'),
 };
 
 // Start HTTPS server

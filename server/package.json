@@ -1,10 +1,11 @@
 {
-  "name": "memorymate",
+  "name": "memorymate-server",
   "version": "1.0.0",
   "description": "My firt app",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "test": "mocha --opts server/mocha.opts"
   },
   "repository": {
     "type": "git",
