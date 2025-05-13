@@ -14,3 +14,20 @@ Make sure list date for journals goes up to the day - DONE
 -- started implementing the notification service (web-push and mkcert for HTTPS)
 -- added DAO methods to delete entries and lists
 -- Added endpoints (remade controllers)
+
+Frontend:
+    add delete function 
+    center text
+    Fix reminder text on dashboard
+    add option to view due time for tasks 
+    Add notifications and reminders
+
+done
+--added dashboard
+--added entry creation form
+
+
+
+
+
+

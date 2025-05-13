@@ -22,10 +22,6 @@ app.use('/entries', entryController);
 app.use('/lists', listController);
 app.use('/reminders', reminderController);
 
-// Serve the dashboard page
-app.get('/dashboard', (req, res) => {
-  res.sendFile(__dirname + '/../client/public/dashboard.html');
-});
 
 // Schedule reminders from entries.json on server startup
 ReminderAbl.scheduleRemindersFromEntries();
