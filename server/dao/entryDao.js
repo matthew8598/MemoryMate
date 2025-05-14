@@ -1,5 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const ListDao = require('./ListDao');
+const e = require('express');
+const ListAbl = require('../abl/ListAbl');
 
 const filePath = path.join(__dirname, '../storage/entries.json');
 
@@ -45,12 +48,26 @@ class EntryDao {
 
   static deleteEntryById(id) {
     const entries = this.getAllEntries();
-    const entryIndex = entries.findIndex(entry => entry.id === id);
+    let idNum = Number(id);
+    console.log(id)
+    if (isNaN(idNum)) {
+      throw new Error(`Invalid ID: ${id}`);
+    }
+    console.log(entries[0].id, idNum);
+    const entryIndex = entries.findIndex(entry => entry.id == idNum);
+    console.log(`Entry index: ${entryIndex}`);
     if (entryIndex === -1) {
       throw new Error(`Entry with ID ${id} not found`);
     }
     entries.splice(entryIndex, 1);
     this.saveEntries(entries);
+    const lists = ListDao.getAllLists();
+    lists.forEach(list => {
+      list.entries = list.entries.filter(entryId => entryId !== idNum);
+    });
+
+    ListDao.saveLists(lists);
+    ListAbl.deleteEmptyLists(); // Call the function to delete empty lists
     return true; // Indicate successful deletion
   }
 }

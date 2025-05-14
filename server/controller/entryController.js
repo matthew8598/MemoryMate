@@ -32,4 +32,14 @@ router.get('/entries', async (req, res) => {
   }
 });
 
+// Delete an entry
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await EntryDao.deleteEntryById(id);
+    res.status(200).send({ message: 'Entry deleted successfully' });
+  } catch (error) {
+    res.status(400).send(formatError(error.message, 400));
+  }
+});
 module.exports = router;

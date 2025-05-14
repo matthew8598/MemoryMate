@@ -72,11 +72,17 @@ class ListAbl {
   static getAllLists() {
     return ListDao.getAllLists();
   }
-  
+  static deleteEmptyLists() {
+  const lists = ListDao.getAllLists();
+  const nonEmptyLists = lists.filter(list => list.entries.length > 0);
+  ListDao.saveLists(nonEmptyLists);
+  }
 }  
   function isValidDateString(str) {
     const d = new Date(str);
     return !isNaN(d.getTime()) && /^\d{4}-\d{2}-\d{2}/.test(str);
   }
+
+
 
 module.exports = ListAbl;

@@ -61,7 +61,26 @@ const handleCreateEntry = async (entry) => {
   }
 };
 
-
+const handleDeleteEntry = async (id) => {
+  try {
+    const response = await FetchHelper.entry.delete(id);
+    if (response.ok) {
+      // Re-fetch the updated dashboard data
+      const dashboardResponse = await FetchHelper.list.getDashboard();
+      if (dashboardResponse.ok) {
+        const data = dashboardResponse.data;
+        setTasks(data.tasks);
+        setJournals(data.journals);
+      } else {
+        console.error('Failed to refresh dashboard data');
+      }
+    } else {
+      console.error('Failed to delete entry');
+    }
+  } catch (error) {
+    console.error('Error deleting entry:', error);
+  }
+};
   return (
     <>
       <section className="menu menu6 cid-uL4xAXVHUw" id="menu06-0">
@@ -112,13 +131,13 @@ const handleCreateEntry = async (entry) => {
               <div className="item features-without-image col-12 active">
                 <div className="item-wrapper">
                   <h3>Tasks</h3>
-                  <ListContainer data={tasks} onEdit={(id) => console.log('Edit task', id)} onDelete={(id) => console.log('Delete task', id)} />
+                  <ListContainer data={tasks} onDelete={(id) => handleDeleteEntry(id)} />
                 </div>
               </div>
               <div className="item features-without-image col-12">
                 <div className="item-wrapper">
                   <h3>Journals</h3>
-                  <ListContainer data={journals} onEdit={(id) => console.log('Edit journal', id)} onDelete={(id) => console.log('Delete journal', id)} />
+                  <ListContainer data={journals} onDelete={(id) => handleDeleteEntry(id)} />
                 </div>
               </div>
             </div>

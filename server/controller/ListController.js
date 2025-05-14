@@ -40,7 +40,7 @@ router.get('/dashboard', async (req, res) => {
           return {
             title: list.date, // Due date as the title
             contents: entries.map(entry => ({
-              id: entry._id,
+              id: entry.id,
               title: entry.title,
               content: entry.content,
               reminder: entry.reminder,
@@ -60,7 +60,7 @@ router.get('/dashboard', async (req, res) => {
           return {
             title: list.date, // Creation date or title
             contents: entries.map(entry => ({
-              id: entry._id,
+              id: entry.id,
               title: entry.title,
               content: entry.content,
               createdAt: entry.createdAt
