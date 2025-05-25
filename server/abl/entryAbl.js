@@ -47,6 +47,8 @@ class EntryAbl {
             }
         }
         if (!validate(entryData)) {
+            console.error('Entry validation failed:', entryData);
+            console.error('Validation errors:', validate.errors);
             throw new Error('Invalid entry data');
         }
         if (entryData.type === 'task' && !entryData.dueDate) {
@@ -76,6 +78,36 @@ class EntryAbl {
             createdAt: entryData.createdAt,
             dueDate: entryData.dueDate
         });
+
+        // --- SCHEDULE REMINDERS/DUE DATE NOTIFICATIONS ON CREATION ---
+        // Dynamically require ReminderAbl to avoid circular dependency
+        const ReminderAbl = require('./reminderAbl');
+        // Schedule due date notification for tasks
+        if (entryData.type === 'task' && entryData.dueDate) {
+            ReminderAbl.scheduleDueDateNotification({
+                ...entryData,
+                id: entryId
+            });
+        }
+        // Schedule reminder notification if present
+        if (entryData.reminder) {
+            // If the reminder is an interval, use scheduleReminder, else use scheduleReminderNotification
+            const isInterval = entryData.interval && ReminderAbl.parseInterval(entryData.interval) > 0;
+            if (isInterval) {
+                ReminderAbl.scheduleReminder({
+                    ...entryData,
+                    id: entryId,
+                    date: entryData.reminder,
+                    interval: entryData.interval
+                });
+            } else {
+                ReminderAbl.scheduleReminderNotification({
+                    ...entryData,
+                    id: entryId,
+                    date: entryData.reminder
+                });
+            }
+        }
         return entryId;
     }
 }

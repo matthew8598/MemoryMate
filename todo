@@ -19,7 +19,12 @@ Frontend:
     center text
     Fix reminder text on dashboard
     Add notifications and reminders
-
+    Fix postpone function - menu looks ugly as hell
+    fix reminders -- triggering after being deleted
+    fix mark as complete -- DONE
+    Notification should show content not title only on duedate notifs
+    reminder deletion deletes the due date not the reminder and therefore creates a new duplicate list with null values
+    fix reminder intervals triggering every minute 
 done
 --added dashboard
 --added entry creation form

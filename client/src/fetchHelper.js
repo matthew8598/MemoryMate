@@ -34,6 +34,29 @@ const FetchHelper = {
     },
   },
 
+  reminder: {
+    update: async (id, newDate) => {
+      // PUT /reminders/update { id, newDate }
+      return await Call(baseUri, "reminders/update", { id, newDate }, "put");
+    },
+    delete: async (id) => {
+      // DELETE /reminders/delete/:id
+      return await Call(baseUri, `reminders/delete/${id}`, null, "delete");
+    },
+    postpone: async (id, newDate) => {
+      // POST /reminders/postpone/:id { id, newDate }
+      return await Call(baseUri, `reminders/postpone/${id}`, { id, newDate }, "post");
+    },
+    markComplete: async (id) => {
+      // PUT /reminders/complete/:id
+      return await Call(baseUri, `reminders/complete/${id}`, null, "put");
+    },
+    schedule: async (reminderData) => {
+      // POST /reminderschedule { ...reminderData }
+      return await Call(baseUri, "reminderschedule", reminderData, "post");
+    },
+  },
+
   list: {
     getAll: async () => {
       return await Call(baseUri, "lists/", null, "get");

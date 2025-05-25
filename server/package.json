@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/UnicornUniversity/realizace-backendu-matthew8598.git"
+    "url": "git+https://github.com/matthew8598/MemoryMate.git"
   },
   "author": "Matúš Várfalvy",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/UnicornUniversity/realizace-backendu-matthew8598/issues"
+    "url": "https://github.com/matthew8598/MemoryMate/issues"
   },
-  "homepage": "https://github.com/UnicornUniversity/realizace-backendu-matthew8598#readme",
+  "homepage": "https://github.com/matthew8598/MemoryMate#readme",
   "dependencies": {
     "ajv": "^8.17.1",
     "ajv-formats": "^2.1.1",

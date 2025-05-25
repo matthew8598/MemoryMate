@@ -37,13 +37,49 @@ class EntryDao {
 
   static updateEntryById(id, updatedFields) {
     const entries = this.getAllEntries();
-    const entryIndex = entries.findIndex(entry => entry.id === id);
+    let idNum = Number(id);
+    if (isNaN(idNum)) {
+      throw new Error(`Invalid ID: ${id}`);
+    }
+    const entryIndex = entries.findIndex(entry => entry.id == idNum);
     if (entryIndex === -1) {
       throw new Error(`Entry with ID ${id} not found`);
     }
-    entries[entryIndex] = { ...entries[entryIndex], ...updatedFields };
+
+    const oldEntry = { ...entries[entryIndex] };
+    const updatedEntry = { ...oldEntry, ...updatedFields };
+
+    // Determine if sorting attribute changed
+    let oldSortValue, newSortValue, listType;
+    listType = oldEntry.type;
+    if (listType === 'task') {
+      oldSortValue = oldEntry.dueDate;
+      newSortValue = updatedEntry.dueDate;
+    } else if (listType === 'journal') {
+      oldSortValue = oldEntry.title || oldEntry.createdAt;
+      newSortValue = updatedEntry.title || updatedEntry.createdAt;
+    }
+
+    // Update entry
+    entries[entryIndex] = updatedEntry;
     this.saveEntries(entries);
-    return entries[entryIndex];
+
+    // If sorting attribute changed, move entry between lists
+    if (oldSortValue !== newSortValue) {
+      // Remove from old list
+      const lists = ListDao.getAllLists();
+      const oldList = lists.find(l => l.type === listType && l.date === oldSortValue);
+      if (oldList) {
+        oldList.entries = oldList.entries.filter(entryId => entryId !== idNum);
+        ListDao.saveLists(lists);
+      }
+      // Add to new list
+      const ListAbl = require('../abl/ListAbl');
+      ListAbl.sortEntryIntoList(updatedEntry);
+      ListAbl.deleteEmptyLists();
+    }
+
+    return updatedEntry;
   }
 
   static deleteEntryById(id) {

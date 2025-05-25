@@ -1,3 +1,7 @@
+// Add endpoint to handle push subscription from client
+const notificationService = require('../utils/notificationService');
+
+
 const ReminderAbl = require('../abl/reminderAbl');
 const EntryDao = require('../dao/entryDao'); // Corrected import path
 const { formatError } = require('../utils/errorHandler');
@@ -98,6 +102,16 @@ router.post('/notification/dueDate', async (req, res) => {
     }
   } catch (error) {
     res.status(500).send(formatError(error.message, 500));
+  }
+});
+// Endpoint to receive push subscription from client
+router.post('/subscribe', (req, res) => {
+  try {
+    const subscription = req.body;
+    notificationService.addSubscription(subscription);
+    res.status(201).json({ message: 'Subscription added successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to add subscription' });
   }
 });
 

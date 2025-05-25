@@ -5,6 +5,7 @@ const EntryForm = ({ onSubmit, onClose }) => { // Added onClose prop
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [reminder, setReminder] = useState('');
+    const [reminderType, setReminderType] = useState('one-time'); // 'one-time' or 'interval'
     const [dueDate, setDueDate] = useState('');
     const [type, setType] = useState('journal');
 
@@ -17,7 +18,10 @@ const handleSubmit = (e) => {
     };
 
     if (title.trim()) entry.title = title;
-    if (reminder.trim()) entry.reminder = reminder;
+    if (reminder.trim()) {
+        entry.reminder = reminder;
+        // Do NOT add entry.interval; backend expects only 'reminder' property
+    }
     if (type === 'task' && dueDate.trim()) entry.dueDate = dueDate;
 
     onSubmit(entry);
@@ -77,12 +81,52 @@ const handleSubmit = (e) => {
                 )}
                 <div>
                     <label htmlFor="reminder">Reminder:</label>
-                    <input
-                        type="text"
-                        id="reminder"
-                        value={reminder}
-                        onChange={(e) => setReminder(e.target.value)}
-                    />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <input
+                                type="radio"
+                                name="reminderType"
+                                value="one-time"
+                                checked={reminderType === 'one-time'}
+                                onChange={() => { setReminderType('one-time'); setReminder(''); }}
+                            />
+                            One-time
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <input
+                                type="radio"
+                                name="reminderType"
+                                value="interval"
+                                checked={reminderType === 'interval'}
+                                onChange={() => { setReminderType('interval'); setReminder(''); }}
+                            />
+                            Interval
+                        </label>
+                        {reminderType === 'interval' && (
+                            <span title="Enter intervals like '3 days', '2 hours', '15 minutes'. The reminder will repeat until turned off.">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style={{marginLeft: 4, color: '#4a90e2', cursor: 'pointer'}}>
+                                    <circle cx="8" cy="8" r="8" fill="#eaf4fd"/>
+                                    <text x="8" y="12" textAnchor="middle" fontSize="10" fill="#4a90e2" fontFamily="Arial" fontWeight="bold">i</text>
+                                </svg>
+                            </span>
+                        )}
+                    </div>
+                    {reminderType === 'one-time' ? (
+                        <input
+                            type="datetime-local"
+                            id="reminder"
+                            value={reminder}
+                            onChange={(e) => setReminder(e.target.value)}
+                        />
+                    ) : (
+                        <input
+                            type="text"
+                            id="reminder"
+                            placeholder="e.g. 3 days, 2 hours"
+                            value={reminder}
+                            onChange={(e) => setReminder(e.target.value)}
+                        />
+                    )}
                 </div>
                 <button type="submit">Add Entry</button>
             </form>
