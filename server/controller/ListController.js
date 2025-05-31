@@ -40,12 +40,13 @@ router.get('/dashboard', async (req, res) => {
           return {
             title: list.date, // Due date as the title
             contents: entries.map(entry => ({
-              id: entry.id,
-              title: entry.title,
-              content: entry.content,
-              reminder: entry.reminder,
-              dueDate: entry.dueDate
-            }))
+                id: entry.id,
+                title: entry.title,
+                content: entry.content,
+                reminder: entry.reminderInterval || (entry.reminder ? `${entry.reminder.split('T')[0]} ${entry.reminder.slice(11, 16)}` : null),
+                dueDate: entry.dueDate
+              })
+            )
           };
         })
     );
@@ -63,7 +64,8 @@ router.get('/dashboard', async (req, res) => {
               id: entry.id,
               title: entry.title,
               content: entry.content,
-              createdAt: entry.createdAt
+              createdAt: entry.createdAt,
+              reminder: entry.reminderInterval || (entry.reminder ? `${entry.reminder.split('T')[0]} ${entry.reminder.slice(11, 16)}` : null)
             }))
           };
         })

@@ -41,12 +41,24 @@ const ListContainer = ({ data, onDelete, highlightId }) => {
 
                   {content.reminder && (
                     <div className="list-item-footer">
-                      Reminder:  {content.reminder.split('T')[0]} {content.reminder.slice(11, 16)}
+                      Reminder: {isNaN(Date.parse(content.reminder))
+                        ? content.reminder // Show interval string as-is
+                        : `${content.reminder.split('T')[0]}` // Show date/time if ISO
+                      }
                     </div>
                   )}
                   {content.dueDate && (
                     <div className="list-item-footer">
-                      Due at: {content.dueDate.slice(11, 16)}
+                      Due at: {(() => {
+                        const d = new Date(content.dueDate);
+                        // Format as YYYY-MM-DD HH:mm (local time)
+                        const year = d.getFullYear();
+                        const month = String(d.getMonth() + 1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        const hours = String(d.getHours()).padStart(2, '0');
+                        const minutes = String(d.getMinutes()).padStart(2, '0');
+                        return `${year}-${month}-${day} ${hours}:${minutes}`;
+                      })()}
                     </div>
                   )}
 
@@ -70,7 +82,7 @@ const ListContainer = ({ data, onDelete, highlightId }) => {
                       className="btn btn-sm btn-warning"
                       style={{marginTop: 4, alignSelf: 'flex-start'}}
                       onClick={async () => {
-                        await FetchHelper.reminder.update(content.id, null);
+                        await FetchHelper.reminder.delete(content.id, null);
                         window.location.reload();
                       }}
                     >

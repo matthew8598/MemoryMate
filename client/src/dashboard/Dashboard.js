@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
 
+
+import React, { useEffect, useState, useRef } from 'react';
 import '../assets/bootstrap/css/bootstrap.min.css';
 import '../assets/bootstrap/css/bootstrap-grid.min.css';
 import '../assets/bootstrap/css/bootstrap-reboot.min.css';
@@ -15,6 +16,21 @@ import FetchHelper from '../fetchHelper';
 import ListContainer from '../list/list-container';
 import EntryForm from '../entry/entry-form';
 import './Dashboard.css';
+import './postpone-form.css';
+
+// Listen for navigation messages from the service worker
+if (navigator.serviceWorker) {
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data && event.data.type === 'navigate' && event.data.url) {
+      // Only navigate if the URL is different
+      if (window.location.pathname + window.location.search !== event.data.url) {
+        window.history.replaceState({}, '', event.data.url);
+        // Optionally, you can trigger a reload or state update if needed
+        window.dispatchEvent(new Event('popstate'));
+      }
+    }
+  });
+}
 
 // For query params
 function getQueryParam(name) {
@@ -84,6 +100,7 @@ const Dashboard = () => {
       return;
     }
     const newDate = new Date(new Date(entry.dueDate).getTime() + intervalMs).toISOString();
+    console.log(`Postponing task ${postponeId} by ${intervalMs} ms to new date: ${newDate}`);
     await FetchHelper.reminder.postpone(postponeId, newDate);
     setShowPostpone(false);
     setPostponeId(null);
@@ -177,9 +194,6 @@ const handlePostponeCustom = async (newDate) => {
             </button>
             <div className="collapse navbar-collapse opacityScroll" id="navbarSupportedContent">
               <ul className="navbar-nav nav-dropdown">
-                <li className="nav-item">
-                  <span className="nav-link link text-black display-4">About</span>
-                </li>
               </ul>
               <div className="navbar-buttons mbr-section-btn">
                 <button
@@ -233,17 +247,10 @@ const handlePostponeCustom = async (newDate) => {
 
       {showPostpone && (
         <div className="entry-form-overlay">
-          <div className="entry-form-popup">
-            <h3>Postpone Task</h3>
-            <p>Select how long to postpone:</p>
-            <ul style={{ listStyle: 'none', padding: 0 }}>
-              {POSTPONE_OPTIONS.map(opt => (
-                <li key={opt.value} style={{ marginBottom: 8 }}>
-                  <button className="btn btn-secondary" onClick={() => handlePostpone(opt.value)}>{opt.label}</button>
-                </li>
-              ))}
-            </ul>
-            <form onSubmit={e => {
+          <div className="entry-form-header postpone-form-header">
+            <h2>Postpone Task</h2>
+            <button onClick={() => { setShowPostpone(false); setPostponeId(null); }} className="close-button">X</button>
+            <form className="postpone-form" onSubmit={e => {
               e.preventDefault();
               const customDate = e.target.customDate.value;
               if (customDate) {
@@ -251,11 +258,17 @@ const handlePostponeCustom = async (newDate) => {
                 handlePostponeCustom(newDate);
               }
             }}>
+              <label style={{marginBottom: 0}}>Select how long to postpone:</label>
+              <div className="postpone-options">
+                {POSTPONE_OPTIONS.map(opt => (
+                  <button type="button" key={opt.value} className="postpone-btn-option" onClick={() => handlePostpone(opt.value)}>{opt.label}</button>
+                ))}
+              </div>
               <label htmlFor="customDate">Or pick a custom date/time:</label>
-              <input type="datetime-local" id="customDate" name="customDate" className="form-control" style={{marginBottom:8}} />
-              <button type="submit" className="btn btn-secondary">Postpone to Date</button>
+              <input type="datetime-local" id="customDate" name="customDate" />
+              <button type="submit">Postpone to Date</button>
+              <button type="button" className="postpone-cancel-btn" onClick={() => { setShowPostpone(false); setPostponeId(null); }}>Cancel</button>
             </form>
-            <button className="btn btn-link" onClick={() => { setShowPostpone(false); setPostponeId(null); }}>Cancel</button>
           </div>
         </div>
       )}

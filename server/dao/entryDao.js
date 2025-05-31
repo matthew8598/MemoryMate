@@ -73,9 +73,13 @@ class EntryDao {
         oldList.entries = oldList.entries.filter(entryId => entryId !== idNum);
         ListDao.saveLists(lists);
       }
-      // Add to new list
+      // Add to new list only if not already present
       const ListAbl = require('../abl/ListAbl');
-      ListAbl.sortEntryIntoList(updatedEntry);
+      // Check if the entry is already in the new list
+      const newList = lists.find(l => l.type === listType && l.date === newSortValue);
+      if (!newList || !newList.entries.includes(idNum)) {
+        ListAbl.sortEntryIntoList(updatedEntry);
+      }
       ListAbl.deleteEmptyLists();
     }
 

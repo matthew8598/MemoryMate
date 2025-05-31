@@ -1,38 +1,14 @@
-Remove old packages -- DONE
-Make sure list date for journals goes up to the day - DONE
-
-
-1. Add more tests. -- DONE
-2. Add more error handling. --DONE
-3. Implement the notification service. -- Set up (roughly) to be implemented during frontend development
-4. Test backend with the frontend.
-5. Perform cleanup and optimization.
-
-
--- added more tests
--- Added utils for error handling 
--- started implementing the notification service (web-push and mkcert for HTTPS)
--- added DAO methods to delete entries and lists
--- Added endpoints (remade controllers)
 
 Frontend:
-    center text
-    Fix reminder text on dashboard
-    Add notifications and reminders
+    Fix reminder text on dashboard -- Done
+    Add notifications and reminders -- done
     Fix postpone function - menu looks ugly as hell
-    fix reminders -- triggering after being deleted
+    fix reminders -- triggering after being deleted -- DONE
     fix mark as complete -- DONE
     Notification should show content not title only on duedate notifs
-    reminder deletion deletes the due date not the reminder and therefore creates a new duplicate list with null values
-    fix reminder intervals triggering every minute 
-done
---added dashboard
---added entry creation form
+    reminder deletion deletes the due date not the reminder and therefore creates a new duplicate list with null values -- DONE
+    fix reminder intervals triggering every minute -- DONE
 
---added delete function
---added option to view due time for tasks 
-
-
-
-
-
+Known Bugs: 
+If you delete the reminder before a dueDate the due date notification won't be sent (all scheduled jobs for entry are deleted)
+One time reminder does not delete itself -- DONE

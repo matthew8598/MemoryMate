@@ -20,6 +20,30 @@ const notificationService = require('../utils/notificationService');
 const scheduledJobs = {};
 
 class ReminderAbl {
+  /**
+   * Delete only the reminder (not dueDate) from an entry, cancel job, and clean up empty lists
+   */
+  static deleteReminder(entryId) {
+    try {
+      // Remove reminder and interval fields only
+      const updatedEntry = EntryDao.updateEntryById(entryId, { reminder: null, reminderInterval: null });
+      console.log('[DEBUG] deleteReminder called for entryId:', entryId);
+      console.log('[DEBUG] Updated entry after deleteReminder:', updatedEntry);
+      // Cancel any scheduled reminder job
+      if (scheduledJobs[entryId]) {
+        scheduledJobs[entryId].cancel();
+        delete scheduledJobs[entryId];
+      }
+      // Clean up empty lists
+      const ListAbl = require('./ListAbl');
+      ListAbl.deleteEmptyLists();
+      console.log(`Reminder deleted for entry ${entryId}`);
+      return updatedEntry;
+    } catch (error) {
+      console.error(`Error deleting reminder: ${error.message}`);
+      throw error;
+    }
+  }
   static scheduleReminder(reminderData) {
     // Cancel any existing job for this entry
     if (reminderData.id && scheduledJobs[reminderData.id]) {
@@ -31,12 +55,17 @@ class ReminderAbl {
     if (reminderData.interval && scheduleDate <= new Date()) {
       // Parse interval and set next valid date
       const intervalSeconds = this.parseInterval(reminderData.interval);
-      scheduleDate = new Date(Date.now() + intervalSeconds * 1000);
-      // Update the entry's reminder date in storage
+      if (!intervalSeconds || typeof intervalSeconds === 'object' && (!intervalSeconds.seconds || intervalSeconds.seconds <= 0)) {
+        // Invalid interval, do not schedule
+        return;
+      }
+      scheduleDate = new Date(Date.now() + (intervalSeconds.seconds || intervalSeconds) * 1000);
+      // Update the entry's reminder date in storage, but keep reminderInterval if present
       EntryDao.updateEntryById(reminderData.id, { reminder: scheduleDate.toISOString() });
       reminderData.date = scheduleDate.toISOString();
     }
     const job = schedule.scheduleJob(scheduleDate, async () => {
+      console.log('[DEBUG] Reminder job fired for entryId:', reminderData.id, 'at', new Date().toISOString());
       // Check if the entry still exists and has a valid reminder
       const entry = EntryDao.getEntryById(reminderData.id);
       if (!entry || !entry.reminder) {
@@ -49,21 +78,32 @@ class ReminderAbl {
       }
       this.sendReminderNotification(reminderData);
 
+      // Debug log for reminder deletion logic
+      console.log('Reminder fired:', {
+        reminderData_interval: reminderData.interval,
+        entry_reminderInterval: entry.reminderInterval,
+        entry_reminder: entry.reminder
+      });
+
       // If it's an interval-based reminder, reschedule it only if still valid
-      if (reminderData.interval && entry.reminder) {
+      if ((reminderData.interval || entry.reminderInterval) && entry.reminder) {
         // Calculate next reminder date based on the previous scheduled date, not current time
         const prevDate = new Date(reminderData.date);
-        const intervalSeconds = this.parseInterval(reminderData.interval);
+        const intervalSeconds = this.parseInterval(reminderData.interval || entry.reminderInterval);
         const nextDate = new Date(prevDate.getTime() + intervalSeconds * 1000);
-        // Update the entry's reminder date in storage
+        // Update the entry's reminder date in storage, but keep reminderInterval if present
         EntryDao.updateEntryById(reminderData.id, { reminder: nextDate.toISOString() });
         // Schedule the next reminder
-        const nextReminderData = { ...reminderData, date: nextDate.toISOString() };
+        const nextReminderData = { ...reminderData, date: nextDate.toISOString(), interval: reminderData.interval || entry.reminderInterval };
         scheduledJobs[reminderData.id] = this.scheduleReminder(nextReminderData);
-      } else if (reminderData.id && scheduledJobs[reminderData.id]) {
-        // Clean up if not rescheduling
-        scheduledJobs[reminderData.id].cancel();
-        delete scheduledJobs[reminderData.id];
+      } else {
+        // One-time reminder: delete the reminder after sending
+        this.deleteReminder(reminderData.id);
+        if (reminderData.id && scheduledJobs[reminderData.id]) {
+          // Clean up if not rescheduling
+          scheduledJobs[reminderData.id].cancel();
+          delete scheduledJobs[reminderData.id];
+        }
       }
     });
     if (reminderData.id) {
@@ -143,7 +183,7 @@ class ReminderAbl {
 
   static parseInterval(interval) {
     // Accepts formats like "3 days", "2 hours", "15 minutes", "1 week at 12:00" matching the schema in entryAbl
-    if (!interval) return 0;
+    if (!interval || typeof interval !== 'string') return 0;
     // Schema: ^\d+ (second|seconds|minute|minutes|hour|hours|day|days|week|weeks|month|months|year|years)( at \d{2}:\d{2})?$ 
     const match = interval.trim().match(/^(\d+)\s+(second|seconds|minute|minutes|hour|hours|day|days|week|weeks|month|months|year|years)(?: at (\d{2}):(\d{2}))?$/i);
     if (!match) return 0;
@@ -167,6 +207,7 @@ class ReminderAbl {
       year: 31536000, // Approximation
       years: 31536000,
     }[unit];
+    if (!multiplier || isNaN(value) || value <= 0) return 0;
     // If 'at HH:MM' is specified, return an object for special handling
     if (atHour !== null && atMinute !== null) {
       return { seconds: value * multiplier, atHour, atMinute };
@@ -182,6 +223,9 @@ class ReminderAbl {
         scheduledJobs[taskId].cancel();
         delete scheduledJobs[taskId];
       }
+      // Clean up empty lists
+      const ListAbl = require('./ListAbl');
+      ListAbl.deleteEmptyLists();
       console.log(`Task ${taskId} marked as complete.`);
     } catch (error) {
       console.error(`Error marking task as complete: ${error.message}`);

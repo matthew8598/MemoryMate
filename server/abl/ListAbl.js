@@ -65,7 +65,10 @@ class ListAbl {
       throw new Error('Invalid list data');
     }
   
-    list.entries.push(entry.id);
+    // Prevent duplicate entry IDs
+    if (!list.entries.includes(entry.id)) {
+      list.entries.push(entry.id);
+    }
     ListDao.saveLists(lists);
   }
 

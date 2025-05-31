@@ -38,7 +38,7 @@ class EntryAbl {
         entryData.createdAt = new Date().toISOString();
 
         if (entryData.type === 'task') {
-            entryData.title = entryData.dueDate; // Ensure task title is always the due date
+            entryData.title = new Date(entryData.dueDate).toISOString(); // Ensure task title is always the due date
         } else if (entryData.type === 'journal') {
             console.log("Entryabl",entryData.title);
             if (entryData.title === undefined) {
@@ -91,20 +91,23 @@ class EntryAbl {
         }
         // Schedule reminder notification if present
         if (entryData.reminder) {
-            // If the reminder is an interval, use scheduleReminder, else use scheduleReminderNotification
-            const isInterval = entryData.interval && ReminderAbl.parseInterval(entryData.interval) > 0;
-            if (isInterval) {
+            // Determine if reminder is a date-time or interval string
+            const isDateTime = !isNaN(Date.parse(entryData.reminder));
+            const intervalPattern = /^\d+ (second|seconds|minute|minutes|hour|hours|day|days|week|weeks|month|months|year|years)( at \d{2}:\d{2})?$/i;
+            if (isDateTime) {
                 ReminderAbl.scheduleReminder({
                     ...entryData,
                     id: entryId,
-                    date: entryData.reminder,
-                    interval: entryData.interval
+                    date: entryData.reminder
                 });
-            } else {
-                ReminderAbl.scheduleReminderNotification({
+            } else if (intervalPattern.test(entryData.reminder)) {
+                // Store the original interval string in reminderInterval
+                EntryDao.updateEntryById(entryId, { reminderInterval: entryData.reminder });
+                ReminderAbl.scheduleReminder({
                     ...entryData,
                     id: entryId,
-                    date: entryData.reminder
+                    date: new Date().toISOString(), // Start from now
+                    interval: entryData.reminder // Pass the interval string
                 });
             }
         }

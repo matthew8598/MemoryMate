@@ -9,20 +9,11 @@ const express = require('express');
 const router = express.Router();
 
 class ReminderController {
-  static updateReminder(req, res) {
-    try {
-      const { id, newDate } = req.body;
-      ReminderAbl.postponeTask(id, newDate);
-      res.status(200).send({ message: 'Reminder updated successfully' });
-    } catch (error) {
-      res.status(400).send(formatError(error.message, 400));
-    }
-  }
-
+  
   static deleteReminder(req, res) {
     try {
       const { id } = req.params;
-      ReminderAbl.markTaskAsComplete(id);
+      ReminderAbl.deleteReminder(id);
       res.status(200).send({ message: 'Reminder deleted successfully' });
     } catch (error) {
       res.status(400).send(formatError(error.message, 400));
@@ -51,7 +42,6 @@ class ReminderController {
 }
 
 // Define routes
-router.put('/update', ReminderController.updateReminder);
 router.delete('/delete/:id', ReminderController.deleteReminder);
 router.post('/postpone/:id', ReminderController.postponeTask);
 router.put('/complete/:id', ReminderController.markTaskAsComplete);

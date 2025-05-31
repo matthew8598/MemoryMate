@@ -42,10 +42,19 @@ self.addEventListener('notificationclick', function(event) {
       fetch('https://localhost:3000/entries/' + (data.id || data.entryId), {method: 'DELETE'})
     );
   } else if (event.action === 'postpone') {
-    event.waitUntil(clients.openWindow('/dashboard?postpone=' + (data.id || data.entryId)));
+    // Always open a new window/tab for postpone
+    event.waitUntil(
+      clients.openWindow('/dashboard?postpone=' + (data.id || data.entryId))
+    );
   } else if (event.action === 'view') {
-    event.waitUntil(clients.openWindow('/dashboard?entry=' + (data.id || data.entryId)));
+    // Always open a new window/tab for view
+    event.waitUntil(
+      clients.openWindow('/dashboard?entry=' + (data.id || data.entryId))
+    );
   } else {
-    event.waitUntil(clients.openWindow('/dashboard'));
+    // Always open a new window/tab for default
+    event.waitUntil(
+      clients.openWindow('/dashboard')
+    );
   }
 });
