@@ -1,3 +1,4 @@
+
 const Ajv = require('ajv');
 const schedule = require('node-schedule');
 const addFormats = require('ajv-formats'); // Import ajv-formats
@@ -20,18 +21,59 @@ const notificationService = require('../utils/notificationService');
 const scheduledJobs = {};
 
 class ReminderAbl {
+    /**
+   * Schedule multiple reminders in advance for multi-day format (e.g., 1-7-14 or 1-7-14 at 13:10)
+   * reminderData: { id, reminderDates: [isoString, ...], ... }
+   */
+  static scheduleMultiReminders(reminderData) {
+    if (!Array.isArray(reminderData.reminderDates) || !reminderData.reminderDates.length) return;
+    // Store all jobs for this entry
+    if (!scheduledJobs[reminderData.id]) scheduledJobs[reminderData.id] = [];
+    // Cancel any previous jobs for this entry
+    if (Array.isArray(scheduledJobs[reminderData.id])) {
+      scheduledJobs[reminderData.id].forEach(job => job.cancel && job.cancel());
+      scheduledJobs[reminderData.id] = [];
+    }
+    // Schedule each reminder
+    reminderData.reminderDates.forEach((isoDate, idx) => {
+      const job = schedule.scheduleJob(new Date(isoDate), async () => {
+        // Check if the entry still exists and has a valid reminderMulti
+        const entry = EntryDao.getEntryById(reminderData.id);
+        if (!entry || !entry.reminderMulti) {
+          // Entry deleted or reminder turned off, do not send notification or reschedule
+          return;
+        }
+        this.sendReminderNotification({ ...reminderData, date: isoDate });
+        // If this is the last scheduled reminder, delete the reminderMulti field
+        if (idx === reminderData.reminderDates.length - 1) {
+          EntryDao.updateEntryById(reminderData.id, { reminderMulti: null });
+          // Clean up jobs
+          if (scheduledJobs[reminderData.id]) {
+            scheduledJobs[reminderData.id].forEach(job => job.cancel && job.cancel());
+            delete scheduledJobs[reminderData.id];
+          }
+        }
+      });
+      scheduledJobs[reminderData.id].push(job);
+    });
+  }
+  
   /**
    * Delete only the reminder (not dueDate) from an entry, cancel job, and clean up empty lists
    */
   static deleteReminder(entryId) {
     try {
-      // Remove reminder and interval fields only
-      const updatedEntry = EntryDao.updateEntryById(entryId, { reminder: null, reminderInterval: null });
+      // Remove all reminder fields (including multi-day)
+      const updatedEntry = EntryDao.updateEntryById(entryId, { reminder: null, reminderInterval: null, reminderMulti: null });
       console.log('[DEBUG] deleteReminder called for entryId:', entryId);
       console.log('[DEBUG] Updated entry after deleteReminder:', updatedEntry);
-      // Cancel any scheduled reminder job
+      // Cancel any scheduled reminder job(s)
       if (scheduledJobs[entryId]) {
-        scheduledJobs[entryId].cancel();
+        if (Array.isArray(scheduledJobs[entryId])) {
+          scheduledJobs[entryId].forEach(job => job.cancel && job.cancel());
+        } else if (scheduledJobs[entryId].cancel) {
+          scheduledJobs[entryId].cancel();
+        }
         delete scheduledJobs[entryId];
       }
       // Clean up empty lists
@@ -252,7 +294,10 @@ class ReminderAbl {
 
   static scheduleRemindersFromEntries() {
     // Cancel all existing jobs
-    Object.values(scheduledJobs).forEach(job => job.cancel());
+    Object.values(scheduledJobs).forEach(job => {
+      if (Array.isArray(job)) job.forEach(j => j.cancel && j.cancel());
+      else if (job && job.cancel) job.cancel();
+    });
     Object.keys(scheduledJobs).forEach(key => delete scheduledJobs[key]);
 
     const entries = EntryDao.getAllEntries();
@@ -270,6 +315,30 @@ class ReminderAbl {
         if (reminderDate > new Date()) {
           this.scheduleReminder({ ...entry, id: entry.id, date: entry.reminder, interval: entry.interval });
         }
+      }
+      if (entry.reminderMulti && !entry.completed) {
+        // Parse multi-day reminder string
+        const [daysPart, timePart] = entry.reminderMulti.split(' at ');
+        const days = daysPart.split('-').map(Number);
+        let hour = 9, minute = 0;
+        if (timePart) {
+          const [h, m] = timePart.split(':').map(Number);
+          hour = h;
+          minute = m;
+        }
+        const now = new Date();
+        const reminderDates = days.map(d => {
+          const date = new Date(now);
+          date.setDate(date.getDate() + d);
+          date.setHours(hour, minute, 0, 0);
+          return date;
+        });
+        this.scheduleMultiReminders({
+          ...entry,
+          id: entry.id,
+          reminderDates: reminderDates.map(d => d.toISOString()),
+          originalMulti: entry.reminderMulti
+        });
       }
     });
   }

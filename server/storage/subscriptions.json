@@ -1,18 +1,10 @@
 [
   {
-    "endpoint": "https://fcm.googleapis.com/fcm/send/eNaJr6R6aEk:APA91bE34MDW88yp113R_CoV5ACwOyv6f8h1Xi2fmTwVoLnA9Kt_xccJXYmxdRg2oERM-Rvr0A5L2YT2uHOni2QcIWnnV0a0xfclUbj8-cgMJmh7-PXDAsWD-ERHKWDjrDnOf7CvejNI",
+    "endpoint": "https://fcm.googleapis.com/fcm/send/cCKqw_9SiWQ:APA91bGfHD-QpVw2BdmTKIY0P7gdRBfA7QYsTm70OloDN_48OQ7uVRUX0q2ovJCv2RUFQ8Te2BhwWjL5ZDqIrNAVbLfw8coXmuDfTwkpzzBWkDolSalioO_GVJhEvYlukxTt6dE-8wd0",
     "expirationTime": null,
     "keys": {
-      "p256dh": "BKGcqssrFZN7l7iqChZcHdizXFoMnIqxG8WQlRZQMNLCs5_8tf2jKwls_asI6CVOMpfTKAgQJk4PsJCIWc5wDt8",
-      "auth": "-KArm1gndxY9GkihlqszaQ"
-    }
-  },
-  {
-    "endpoint": "https://fcm.googleapis.com/fcm/send/enRgY5_lKeQ:APA91bHWxJYWsqiy99hlj7qMadPHgnUC27_jXPr5U2mbc0YHb3P4DI7oKkyN0IUYf1jsrJ3H-WxSUQJK1Yz5gvsp8KPTz-eKyiHaul3BK7Sez_VyzReInwJsJEp_N8XiHENkowVyp8yG",
-    "expirationTime": null,
-    "keys": {
-      "p256dh": "BKfZXxLbEq8uQ7-rfnUW3BIfMLi1JPD6bktNEMdWZMEr1aGIM3e0i3KhVFHV0MytL3L7K0A0lL3qQA7_nCLaCFo",
-      "auth": "QJoJ4mdP0HIv6xxjqKV9aw"
+      "p256dh": "BAvNwtWEssXZYioTOXbi6YobhVV-rmuVEqdbEpBvcjgSKMAt8q6Njin0fTPSlBL0fN3yOjw0inpDiDX5_GVuNsQ",
+      "auth": "QJjVhwHg0a7Uz2swjloRzw"
     }
   }
 ]

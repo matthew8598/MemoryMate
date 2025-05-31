@@ -39,14 +39,28 @@ router.get('/dashboard', async (req, res) => {
           );
           return {
             title: list.date, // Due date as the title
-            contents: entries.map(entry => ({
-                id: entry.id,
-                title: entry.title,
-                content: entry.content,
-                reminder: entry.reminderInterval || (entry.reminder ? `${entry.reminder.split('T')[0]} ${entry.reminder.slice(11, 16)}` : null),
-                dueDate: entry.dueDate
-              })
-            )
+            contents: entries.map(entry => {
+              let reminder = null;
+              if (entry.reminderMulti) {
+                // Multi-day reminder
+                return {
+                  id: entry.id,
+                  title: entry.title,
+                  content: entry.content,
+                  reminderMulti: entry.reminderMulti,
+                  dueDate: entry.dueDate
+                };
+              } else {
+                reminder = entry.reminderInterval || (entry.reminder ? `${entry.reminder.split('T')[0]} ${entry.reminder.slice(11, 16)}` : null);
+                return {
+                  id: entry.id,
+                  title: entry.title,
+                  content: entry.content,
+                  reminder,
+                  dueDate: entry.dueDate
+                };
+              }
+            })
           };
         })
     );
@@ -60,13 +74,27 @@ router.get('/dashboard', async (req, res) => {
           );
           return {
             title: list.date, // Creation date or title
-            contents: entries.map(entry => ({
-              id: entry.id,
-              title: entry.title,
-              content: entry.content,
-              createdAt: entry.createdAt,
-              reminder: entry.reminderInterval || (entry.reminder ? `${entry.reminder.split('T')[0]} ${entry.reminder.slice(11, 16)}` : null)
-            }))
+            contents: entries.map(entry => {
+              let reminder = null;
+              if (entry.reminderMulti) {
+                return {
+                  id: entry.id,
+                  title: entry.title,
+                  content: entry.content,
+                  createdAt: entry.createdAt,
+                  reminderMulti: entry.reminderMulti
+                };
+              } else {
+                reminder = entry.reminderInterval || (entry.reminder ? `${entry.reminder.split('T')[0]} ${entry.reminder.slice(11, 16)}` : null);
+                return {
+                  id: entry.id,
+                  title: entry.title,
+                  content: entry.content,
+                  createdAt: entry.createdAt,
+                  reminder
+                };
+              }
+            })
           };
         })
     );

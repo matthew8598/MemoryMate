@@ -39,14 +39,53 @@ const ListContainer = ({ data, onDelete, highlightId }) => {
                 >
                   <div className="list-item-content-text">{content.content}</div>
 
-                  {content.reminder && (
+
+                  {/* Show new multi-day reminders, interval, or one-time */}
+                  {content.reminderMulti ? (
+                    <>
+                      <div className="list-item-footer">
+                        {(() => {
+                          // Parse and display multi-day reminder in a user-friendly way
+                          const [daysPart, timePart] = content.reminderMulti.split(' at ');
+                          const days = daysPart.split('-').map(Number);
+                          let timeStr = '';
+                          if (timePart) {
+                            // Only show HH:MM, trim any seconds if present
+                            const [h, m] = timePart.split(':');
+                            if (h !== undefined && m !== undefined) {
+                              timeStr = ` at ${h.padStart(2, '0')}:${m.padStart(2, '0')}`;
+                            }
+                          }
+                          return `Reminders: ${days.join(', ')} day${days.length > 1 ? 's' : ''} from now${timeStr}`;
+                        })()}
+                      </div>
+                      <button
+                        className="btn btn-sm btn-warning"
+                        style={{marginTop: 4, alignSelf: 'flex-start'}}
+                        onClick={async () => {
+                          await FetchHelper.reminder.delete(content.id);
+                          window.location.reload();
+                        }}
+                      >
+                        Turn off reminder
+                      </button>
+                    </>
+                  ) : content.reminder ? (
                     <div className="list-item-footer">
                       Reminder: {isNaN(Date.parse(content.reminder))
                         ? content.reminder // Show interval string as-is
-                        : `${content.reminder.split('T')[0]}` // Show date/time if ISO
+                        : (() => {
+                            const d = new Date(content.reminder);
+                            const year = d.getFullYear();
+                            const month = String(d.getMonth() + 1).padStart(2, '0');
+                            const day = String(d.getDate()).padStart(2, '0');
+                            const hours = String(d.getHours()).padStart(2, '0');
+                            const minutes = String(d.getMinutes()).padStart(2, '0');
+                            return `${year}-${month}-${day} ${hours}:${minutes}`;
+                          })()
                       }
                     </div>
-                  )}
+                  ) : null}
                   {content.dueDate && (
                     <div className="list-item-footer">
                       Due at: {(() => {

@@ -103,7 +103,13 @@ const handleSubmit = (e) => {
                             Interval
                         </label>
                         {reminderType === 'interval' && (
-                            <span title="Enter intervals like '3 days at 11:30', '2 hours', '15 minutes'. The reminder will repeat until turned off.">
+                            <span title={
+                                `Interval options:\n` +
+                                `- '3 days', '2 hours', '15 minutes', etc. (repeats until turned off)\n` +
+                                `- Multi-day: '1-7-14' (reminders in 1, 7, and 14 days from now)\n` +
+                                `- Multi-day with time: '1-7-14 at 13:10' (all reminders at 13:10)\n` +
+                                `You can use any of these formats.`
+                            }>
                                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style={{marginLeft: 4, color: '#4a90e2', cursor: 'pointer'}}>
                                     <circle cx="8" cy="8" r="8" fill="#eaf4fd"/>
                                     <text x="8" y="12" textAnchor="middle" fontSize="10" fill="#4a90e2" fontFamily="Arial" fontWeight="bold">i</text>
@@ -122,7 +128,7 @@ const handleSubmit = (e) => {
                         <input
                             type="text"
                             id="reminder"
-                            placeholder="e.g. 3 days, 2 hours"
+                            placeholder="e.g. 3 days, 2 hours, 1-7-14, 1-7-14 at 13:10"
                             value={reminder}
                             onChange={(e) => setReminder(e.target.value)}
                         />

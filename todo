@@ -2,7 +2,7 @@
 Frontend:
     Fix reminder text on dashboard -- Done
     Add notifications and reminders -- done
-    Fix postpone function - menu looks ugly as hell
+    Fix postpone function - menu looks ugly as hell -- DONE
     fix reminders -- triggering after being deleted -- DONE
     fix mark as complete -- DONE
     Notification should show content not title only on duedate notifs
