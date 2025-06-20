@@ -275,12 +275,5 @@ const handlePostponeCustom = async (newDate) => {
     </>
   );
 };
-
-
-// Custom postpone handler
-// Needs to be inside the Dashboard component to access state
-// Move this function above the return statement and use useCallback if needed
-
-
 export default Dashboard;
 

@@ -36,7 +36,7 @@ const handleSubmit = (e) => {
     return (
         <div className="entry-form-header">
             <h2>Create New Entry</h2>
-            <button onClick={onClose} className="close-button">X</button> {/* Added close button */}
+            <button onClick={onClose} className="close-button">X</button>
             <form onSubmit={handleSubmit} className="entry-form">
                 <div>
                     <label htmlFor="type">Type:</label>

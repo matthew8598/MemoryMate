@@ -10,7 +10,6 @@ const ListContainer = ({ data, onDelete, highlightId }) => {
   useEffect(() => {
     if (highlightId && entryRefs.current[highlightId]) {
       entryRefs.current[highlightId].scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Remove highlight after 2 seconds
       setTimeout(() => {
         if (entryRefs.current[highlightId]) {
           entryRefs.current[highlightId].classList.remove('highlight-entry');
@@ -40,17 +39,15 @@ const ListContainer = ({ data, onDelete, highlightId }) => {
                   <div className="list-item-content-text">{content.content}</div>
 
 
-                  {/* Show new multi-day reminders, interval, or one-time */}
                   {content.reminderMulti ? (
                     <>
                       <div className="list-item-footer">
                         {(() => {
-                          // Parse and display multi-day reminder in a user-friendly way
+                          
                           const [daysPart, timePart] = content.reminderMulti.split(' at ');
                           const days = daysPart.split('-').map(Number);
                           let timeStr = '';
                           if (timePart) {
-                            // Only show HH:MM, trim any seconds if present
                             const [h, m] = timePart.split(':');
                             if (h !== undefined && m !== undefined) {
                               timeStr = ` at ${h.padStart(2, '0')}:${m.padStart(2, '0')}`;
@@ -73,7 +70,7 @@ const ListContainer = ({ data, onDelete, highlightId }) => {
                   ) : content.reminder ? (
                     <div className="list-item-footer">
                       Reminder: {isNaN(Date.parse(content.reminder))
-                        ? content.reminder // Show interval string as-is
+                        ? content.reminder 
                         : (() => {
                             const d = new Date(content.reminder);
                             const year = d.getFullYear();
